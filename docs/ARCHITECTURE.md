@@ -28,10 +28,10 @@ src/main/java/io/keede/mombti
 ├           └── calculator/
 ├               └── BodyIndexCalculator          BMI, BMI 구간
 ├               └── BodyCompositionEstimator     체지방률 추정 (Deurenberg)
-├               └── BmrCalculator                Mifflin-St Jeor / Katch-McArdle
+├               └── BmrCalculator                Mifflin-St Jeor / Cunningham(Katch-McArdle)
 ├               └── TdeeCalculator               BMR × PAL
-├               └── ExerciseEnergyCalculator     운동 1회 가정(MET 4.3, 45분) → 하루 평균 kcal
-├               └── EnergyTargetCalculator       적자, 하한, 하루 섭취 목표
+├               └── ExerciseEnergyCalculator     운동 1회 가정(MET 4.8, 45분) → 하루 평균 kcal
+├               └── EnergyTargetCalculator       적자(1% 상한은 시작 시점 에너지 밀도로 환산), 하한, 하루 섭취 목표
 ├               └── MacroCalculator              탄단지 (반올림 보정)
 ├           └── simulation/
 ├               └── ScenarioFactory              시나리오 4개 생성
@@ -140,12 +140,13 @@ GET  /report          → 302 /
 - 하루 단위로 364일 반복하고, 7일마다 `ProjectionPoint`를 기록한다 (0~52주).
 - 하루 계산:
   1. W = F + L
-  2. BMR = 체지방률 입력 시 Katch-McArdle(L), 아니면 Mifflin-St Jeor(W). 밴드 계산에서는 × 0.9 / × 1.1
+  2. BMR = 체지방률 입력 시 Cunningham(L), 아니면 Mifflin-St Jeor(W). 밴드 계산에서는 × 0.9 / × 1.1
   3. 소비 E = BMR × PAL + 운동 하루 평균 kcal(W)
   4. 적응성 열발생 A = max(0, E − 섭취) × 0.10 (가정, docs/EVIDENCE.md)
   5. 에너지 차이 ΔE = 섭취 − (E − A)
   6. Forbes 분배 p = 10.4 / (10.4 + F)
   7. ΔW = ΔE / (p × 1,816 + (1 − p) × 9,440), F += (1 − p) × ΔW, L += p × ΔW
+- 적자 상한의 "주당 체중 1%"는 시작 시점 ρ = p × 1,816 + (1 − p) × 9,440으로 kcal 환산한다 (`EnergyTargetCalculator`, 시뮬레이션과 같은 상수 사용).
 - 섭취량은 시작 시점 목표로 고정한다 (보수적 가정). 리포트에서 "4주마다 다시 계산"을 안내한다.
 - 불변식: F > 0.5kg, L > 0, 모든 값이 유한값, LOSS 모드에서 체중이 단조 비증가. 위반하면 `SimulationInvariantException`.
 - 도달 판정: 기록된 주차 중 체중 ≤ 목표 + 0.05kg인 첫 주. 52주까지 없으면 `Unreachable`.
