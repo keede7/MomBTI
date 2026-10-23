@@ -39,3 +39,4 @@ out/
 # phase execution outputs
 phases/**/phase*-output.json
 phases/**/step*-output.json
+.DS_Store
