@@ -6,7 +6,8 @@
 ## 기술 스택
 - Spring Boot 4.1.2 (webmvc, thymeleaf, validation)
 - Java 21 (record, sealed interface 적극 사용)
-- Thymeleaf SSR + Chart.js 4.4.1 (cdnjs, 점진적 향상)
+- Thymeleaf SSR + Chart.js 4.4.1 (`static/vendor` 로컬 파일, 점진적 향상)
+- 화면은 모바일 앱 WebView 대상 (ADR-027): 외부 CDN·폰트 금지, 터치 영역 44px, 입력 글자 16px, safe area
 - 테스트: JUnit 5, AssertJ, Spring MockMvc
 - 저장소 없음 (DB, 세션, 쿠키 미사용)
 

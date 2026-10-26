@@ -8,7 +8,7 @@
         <thead>
         <tr>
             <th scope="col">시점</th>
-            <th scope="col">날짜</th>
+            <th scope="col" class="col-date">날짜</th>
             <th scope="col" th:each="s : ${chart.series}" th:text="${s.label}">식단만</th>
             <th scope="col">개인차 범위 (식단만)</th>
             <th scope="col">현실 보정 (식단만) <span th:replace="~{fragments/evidence :: assumed}"></span></th>
@@ -18,8 +18,9 @@
         <tbody>
         <tr th:each="week, it : ${chart.weeks}"
             th:class="${week > chart.defaultWeeks} ? 'chart-row is-extended' : 'chart-row'">
-            <th scope="row" th:text="${week == 0} ? '지금' : |${week}주 후|">2주 후</th>
-            <td th:text="${chart.dates[it.index]}">2026년 11월 둘째 주</td>
+            <th scope="row"><span th:text="${week == 0} ? '지금' : |${week}주 후|">2주 후</span>
+                <span class="row-date" aria-hidden="true" th:text="${chart.dates[it.index]}">2026년 11월 둘째 주</span></th>
+            <td class="col-date" th:text="${chart.dates[it.index]}">2026년 11월 둘째 주</td>
             <td class="num" th:each="s : ${chart.series}" th:text="${s.weightsKg[it.index]}">67.5</td>
             <td class="num" th:text="|${chart.bandLowerKg[it.index]}~${chart.bandUpperKg[it.index]}|">67.0~68.0</td>
             <td class="num" th:text="${chart.series[0].adherenceWeightsKg[it.index]}">67.8</td>

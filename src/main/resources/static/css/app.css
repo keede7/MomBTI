@@ -1,4 +1,19 @@
-/* MomBTI — docs/UI_GUIDE.md 토큰과 컴포넌트. 체성분 검사지처럼 한 장으로 이어지는 결과지. */
+/* MomBTI — docs/UI_GUIDE.md 토큰과 컴포넌트. 체성분 검사지처럼 한 장으로 이어지는 결과지.
+   모바일 앱 WebView 대상 (ADR-027): 외부 자산 없음, 터치 44px, 입력 16px, safe area. */
+
+/* 숫자 글꼴은 로컬 파일 (라틴 글자만, OFL). 본문은 시스템 글꼴 */
+@font-face {
+    font-family: "IBM Plex Mono";
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+    font-family: "IBM Plex Mono";
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/ibm-plex-mono-latin-600-normal.woff2") format("woff2");
+}
 
 :root {
     color-scheme: light dark;
@@ -24,7 +39,8 @@
     --s5: #b8661c;
     --target: #b84235;
 
-    --font-sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", Roboto, "Malgun Gothic", sans-serif;
+    --tap: 44px;
     --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
@@ -60,8 +76,14 @@ html { scroll-behavior: smooth; }
     html { scroll-behavior: auto; }
 }
 
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
 body {
     margin: 0;
+    -webkit-tap-highlight-color: transparent;
     background: var(--bg);
     color: var(--ink-2);
     font-family: var(--font-sans);
@@ -97,7 +119,8 @@ ul, ol { margin: 0; padding: 0; }
 .page {
     max-width: 960px;
     margin: 0 auto;
-    padding: 20px max(16px, env(safe-area-inset-right)) 32px max(16px, env(safe-area-inset-left));
+    padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+             max(32px, calc(env(safe-area-inset-bottom) + 16px)) max(16px, env(safe-area-inset-left));
 }
 
 .sheet {
@@ -174,10 +197,19 @@ ul, ol { margin: 0; padding: 0; }
 .tag-required, .tag-optional, .tag-tip { border: 1px solid var(--line); color: var(--ink-3); }
 .tag-required { border-color: var(--ink); color: var(--ink); }
 
-/* 각주 */
+/* 각주: 글자는 작게, 터치 영역은 24px 이상 (WCAG 2.5.8, 본문 안 인라인 링크라 44px 예외) */
 .fn { font-size: 11px; font-family: var(--font-mono); line-height: 0; margin-left: 2px; }
-.fn a { text-decoration: none; color: var(--accent); }
-.fn a + a { margin-left: 2px; }
+.fn a {
+    display: inline-block;
+    min-width: 24px;
+    min-height: 24px;
+    line-height: 24px;
+    text-align: center;
+    vertical-align: middle;
+    margin: -10px 0 -6px; /* 터치 영역은 넓히되 줄 간격은 늘리지 않는다 */
+    text-decoration: none;
+    color: var(--accent);
+}
 
 /* 버튼 */
 .btn {
@@ -189,17 +221,21 @@ ul, ol { margin: 0; padding: 0; }
     cursor: pointer;
     text-decoration: none;
     text-align: center;
+    min-height: var(--tap);
+    touch-action: manipulation;
 }
 .btn-primary { background: var(--ink); color: var(--paper); border: 1px solid var(--ink); align-self: flex-start; }
 .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--ink); }
-.btn-small { padding: 5px 12px; font-size: 13px; }
+.btn-small { padding: 0 14px; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
 
 .toggle-group { display: flex; flex-wrap: wrap; gap: 8px; }
 .toggle {
     font: inherit;
     font-size: 13px;
-    padding: 4px 12px;
+    min-height: var(--tap);
+    padding: 0 14px;
     border-radius: 999px;
+    touch-action: manipulation;
     border: 1px solid var(--line);
     background: transparent;
     color: var(--ink);
@@ -241,6 +277,8 @@ ul, ol { margin: 0; padding: 0; }
 input[type="text"], select {
     width: 100%;
     font: inherit;
+    font-size: 16px;
+    min-height: var(--tap);
     color: var(--ink);
     background: var(--paper);
     border: 1px solid var(--line);
@@ -256,7 +294,7 @@ input[type="text"]:focus-visible, select:focus-visible { outline: 2px solid var(
 .segment { flex: 1; position: relative; }
 .segment input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
 .segment span {
-    display: block; text-align: center; padding: 9px 10px;
+    display: flex; align-items: center; justify-content: center; min-height: var(--tap); padding: 0 10px;
     border: 1px solid var(--line); color: var(--ink);
 }
 .segment:first-child span { border-radius: 4px 0 0 4px; }
@@ -313,6 +351,7 @@ input[type="text"]:focus-visible, select:focus-visible { outline: 2px solid var(
 .data-table thead th { font-size: 12px; font-weight: 600; color: var(--ink-3); border-bottom-color: var(--line); }
 .data-table tbody th { font-weight: 600; color: var(--ink); }
 .data-table td.num { text-align: right; }
+.row-date { display: none; }
 .chart-row.is-extended { color: var(--ink-3); }
 
 /* 단계별 목표 */
@@ -383,6 +422,17 @@ input[type="text"]:focus-visible, select:focus-visible { outline: 2px solid var(
 }
 
 @media (max-width: 760px) {
+    /* 도달 예측 표는 시나리오별 카드로 (데이터와 마크업은 같고 배치만 바꾼다) */
+    .stack-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .stack-table, .stack-table tbody, .stack-table tr, .stack-table th, .stack-table td { display: block; width: auto; }
+    .stack-table tr { border: 1px solid var(--line); border-radius: 4px; padding: 8px 12px; margin-bottom: 8px; }
+    .stack-table th, .stack-table td { border-bottom: 0; padding: 2px 0; white-space: normal; }
+    .stack-table tbody th { font-size: 14px; padding-bottom: 4px; }
+    .stack-table td { display: flex; justify-content: space-between; gap: 12px; }
+    .stack-table td.num { text-align: left; }
+    .stack-table caption { display: block; text-align: left; }
+    .stack-table td::before { content: attr(data-label); color: var(--ink-3); font-size: 12px; }
+
     .page { padding-top: 12px; }
     .sheet { padding: 18px; gap: 18px; }
     .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -399,6 +449,12 @@ input[type="text"]:focus-visible, select:focus-visible { outline: 2px solid var(
 }
 
 @media (max-width: 400px) {
+    /* 그래프 표: 시점 열 고정, 날짜는 시점 아래로 */
+    #chart-table .col-date { display: none; }
+    #chart-table .row-date { display: block; font-size: 11px; font-weight: 400; color: var(--ink-3); }
+    #chart-table tbody th, #chart-table thead th:first-child {
+        position: sticky; left: 0; z-index: 1; background: var(--paper);
+    }
     .sheet { padding: 14px; }
     .card { padding: 10px; }
     .card-value { font-size: 18px; }

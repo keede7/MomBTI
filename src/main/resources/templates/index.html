@@ -2,11 +2,11 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#f4f6f5" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#101513" media="(prefers-color-scheme: dark)">
     <title>MomBTI · 다이어트 리포트</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap">
     <link rel="stylesheet" th:href="@{/css/app.css}">
     <script th:src="@{/js/form.js}" defer></script>
 </head>
@@ -19,7 +19,7 @@
             <p class="caption">입력한 값은 저장하지 않아요. 임신·수유 중이거나 치료 중이라면 시작 전에 의료진과 상의하세요.</p>
         </header>
 
-        <form th:action="@{/report}" th:object="${reportForm}" method="post" novalidate id="report-form">
+        <form th:action="@{/report}" th:object="${reportForm}" method="get" novalidate id="report-form">
             <div th:if="${#fields.hasErrors('*')}" id="error-summary" class="error-summary" role="alert" tabindex="-1">
                 <p class="error-summary-title">입력을 확인해 주세요</p>
                 <ul>

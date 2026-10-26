@@ -11,6 +11,7 @@ import io.keede.mombti.web.dto.report.ReportForm;
 import io.keede.mombti.web.dto.report.ReportFormMapper;
 import io.keede.mombti.web.dto.report.ReportView;
 import io.keede.mombti.web.support.NumberNormalizer;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
@@ -23,12 +24,12 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * 입력 → 리포트 (docs/ARCHITECTURE.md 데이터 흐름). 저장하지 않으므로 POST 결과를 바로 렌더한다 (ADR-017).
+ * 입력 → 리포트 (docs/ARCHITECTURE.md 데이터 흐름). 저장하지 않으므로 GET 쿼리의 입력값으로 매번 다시 계산해 렌더한다.
+ * 모바일 WebView에서 뒤로 가기·새로 고침이 재전송 없이 동작하도록 GET을 쓴다 (ADR-017).
  * 계산은 {@link ReportQueryService}에만 맡긴다.
  */
 @Controller
@@ -68,15 +69,13 @@ public class ReportController {
         return INDEX;
     }
 
-    /** E-27: 저장된 리포트가 없으므로 입력 화면으로. */
+    /** E-27: 쿼리가 없으면 계산할 입력이 없으므로 입력 화면으로. */
     @GetMapping("/report")
-    public String reportRedirect() {
-        return "redirect:/";
-    }
-
-    @PostMapping("/report")
     public ModelAndView report(@Valid @ModelAttribute("reportForm") ReportForm form, BindingResult errors,
-                               Model model) {
+                               Model model, HttpServletRequest request) {
+        if (request.getParameterMap().isEmpty()) {
+            return new ModelAndView("redirect:/");
+        }
         form.validateHeight(errors);
         if (errors.hasErrors()) {
             return badRequest(INDEX);
@@ -93,7 +92,7 @@ public class ReportController {
      * hidden 기존 값 + 패널 입력을 병합해 재계산한다. hidden 값도 매번 전체 재검증한다 (E-26).
      * 패널 입력 오류는 패널 안에 표시하고 기존 리포트를 다시 렌더한다 (E-25).
      */
-    @PostMapping("/report/refine")
+    @GetMapping("/report/refine")
     public ModelAndView refine(@Valid @ModelAttribute("reportForm") ReportForm form, BindingResult errors,
                                @Valid @ModelAttribute("refineForm") RefineForm refine, BindingResult refineErrors,
                                Model model) {

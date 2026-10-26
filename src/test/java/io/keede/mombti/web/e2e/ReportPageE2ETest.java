@@ -2,7 +2,6 @@ package io.keede.mombti.web.e2e;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -50,7 +49,7 @@ class ReportPageE2ETest {
     }
 
     private String render(Map<String, String> params) throws Exception {
-        MockHttpServletRequestBuilder request = post("/report");
+        MockHttpServletRequestBuilder request = get("/report");
         params.forEach(request::param);
         return mockMvc.perform(request)
                 .andExpect(status().isOk())
@@ -82,7 +81,7 @@ class ReportPageE2ETest {
         // 0~26주 2주 간격 14행 (기본 12주 밖 행도 표에는 모두 있다)
         assertThat(html.split("<tr class=\"chart-row").length - 1).isEqualTo(14);
         assertThat(html).contains("data-chart=");
-        assertThat(html).contains("https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js");
+        assertThat(html).contains("/vendor/chart.umd.min.js");
     }
 
     @Test
@@ -135,6 +134,45 @@ class ReportPageE2ETest {
         assertThat(html).contains("더 맞춤형으로").contains("id=\"optional-hint\"").contains("/js/form.js");
         assertThat(html.split("class=\"tag tag-optional\"").length - 1).isEqualTo(3);
         assertThat(html).doesNotContain("null");
+    }
+
+    @Test
+    void 모바일_WebView_외부_자산_없이_로컬에서만_불러옴() throws IOException {
+        try (Stream<Path> files = Files.walk(Path.of("src/main/resources/templates"))) {
+            List<Path> offenders = files.filter(Files::isRegularFile)
+                    .filter(file -> read(file).matches("(?s).*(src|href)=\"https?://.*"))
+                    .toList();
+            assertThat(offenders).isEmpty();
+        }
+        assertThat(Path.of("src/main/resources/static/vendor/chart.umd.min.js")).exists();
+    }
+
+    @Test
+    void 모바일_WebView_뷰포트_safe_area와_다크모드_메타() throws IOException {
+        try (Stream<Path> files = Files.walk(Path.of("src/main/resources/templates"))) {
+            files.filter(Files::isRegularFile)
+                    .filter(file -> read(file).contains("<head>"))
+                    .forEach(file -> assertThat(read(file)).as(file.toString())
+                            .contains("viewport-fit=cover")
+                            .contains("name=\"color-scheme\" content=\"light dark\"")
+                            .contains("name=\"theme-color\""));
+        }
+    }
+
+    @Test
+    void 뒤로_가기를_위해_입력과_재계산_폼은_GET() throws Exception {
+        String index = mockMvc.perform(get("/")).andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+        String report = render(Map.of("gender", "FEMALE", "age", "27", "heightCm", "163", "weightKg", "68"));
+
+        assertThat(index).contains("method=\"get\"").doesNotContain("method=\"post\"");
+        assertThat(report).doesNotContain("method=\"post\"");
+    }
+
+    @Test
+    void iOS_자동_확대_방지를_위해_입력_글자는_16px_이상() throws IOException {
+        String css = Files.readString(Path.of("src/main/resources/static/css/app.css"));
+
+        assertThat(css).containsPattern("input\\[type=\"text\"\\], select \\{[^}]*font-size: 16px");
     }
 
     @Test
