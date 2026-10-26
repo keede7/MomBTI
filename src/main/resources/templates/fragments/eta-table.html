@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section th:fragment="section" id="eta" class="section" aria-labelledby="eta-title">
+    <h2 id="eta-title">목표 도달 예측<th:block
+            th:replace="~{fragments/evidence :: refs(${report.refs('HERRMANN_2024', 'FRANKENFIELD_2005', 'HELMS_2014')})}"></th:block></h2>
+    <p class="caption">운동 1회 = 중강도 45분(빠르게 걷기 수준) <span th:replace="~{fragments/evidence :: assumed}"></span>
+        · 도달 주차는 기초대사량 ±10% 범위예요</p>
+    <div class="table-scroll" tabindex="0" role="region" aria-labelledby="eta-caption">
+        <table class="data-table">
+            <caption id="eta-caption">시나리오별 목표 도달 예측</caption>
+            <thead>
+            <tr>
+                <th scope="col">시나리오</th>
+                <th scope="col">도달 주차</th>
+                <th scope="col">예상 날짜</th>
+                <th scope="col">첫 4주 주당 감량</th>
+                <th scope="col">안전 범위</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row : ${report.etaRows}">
+                <th scope="row" th:text="${row.scenario}">식단만</th>
+                <td th:text="${row.etaRange}">18~23주</td>
+                <td th:text="${row.etaDate}">2027년 3월 둘째 주</td>
+                <td class="num" th:text="|${row.weeklyLossKg}kg|">0.5kg</td>
+                <td>
+                    <span th:if="${row.safe}" class="good">안전 범위 안</span>
+                    <span th:unless="${row.safe}" class="warn">빠른 편이에요</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

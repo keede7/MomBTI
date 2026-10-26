@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MomBTI · 잠시 후 다시 시도해 주세요</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="page">
+    <article class="sheet">
+        <header class="sheet-head">
+            <h1>리포트를 만들지 못했어요</h1>
+        </header>
+        <section class="section">
+            <p>잠시 후 다시 시도해 주세요. 입력한 값은 저장하지 않았어요.</p>
+            <p th:if="${requestId != null}" class="caption">문의할 때 요청 번호를 알려 주세요: <span class="num" th:text="${requestId}">요청 번호</span></p>
+            <a class="btn btn-primary" th:href="@{/}">홈으로 가기</a>
+        </section>
+    </article>
+</main>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section th:fragment="section" id="improvements" class="section" aria-labelledby="improvements-title">
+    <h2 id="improvements-title">개선할 부분</h2>
+    <ol class="improvements" th:unless="${report.improvements.isEmpty()}">
+        <li th:each="item : ${report.improvements}"
+            th:class="${item.kind.name() == 'GENERAL_TIP'} ? 'improvement is-tip' : 'improvement'">
+            <h3><span th:text="${item.title}">단백질</span>
+                <span class="tag tag-tip" th:if="${item.kind.name() == 'GENERAL_TIP'}">일반 팁</span></h3>
+            <p><span th:text="${item.body}">설명</span><th:block
+                    th:replace="~{fragments/evidence :: enumRefs(${item.evidence})}"></th:block></p>
+        </li>
+    </ol>
+    <p class="empty-state" th:if="${report.improvements.isEmpty()}">지금 잘 관리하고 있어요. 4주마다 다시 계산해 변화를 확인해 보세요.</p>
+</section>
+</body>
+</html>

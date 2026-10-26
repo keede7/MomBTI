@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section th:fragment="section" id="refine" class="section refine" aria-labelledby="refine-title">
+    <h2 id="refine-title">더 정확하게 보기</h2>
+    <th:block th:if="${report.refineActivityLevel or report.refineTargetWeightKg or report.refineBodyFatPercent}">
+        <p class="caption">비어 있던 항목만 넣으면 리포트 전체를 새 결과로 바꿔 드려요.</p>
+        <form th:action="@{/report/refine} + '#refine'" th:object="${refineForm}" method="post" novalidate>
+            <div th:if="${#fields.hasErrors('*')}" class="error-summary" role="alert">
+                <p class="error-summary-title">입력을 확인해 주세요</p>
+                <ul>
+                    <li th:each="error : ${#fields.detailedErrors()}">
+                        <a th:href="|#${error.fieldName}|" th:text="${error.message}">오류</a>
+                    </li>
+                </ul>
+            </div>
+
+            <input type="hidden" name="gender" th:value="${reportForm.gender}">
+            <input type="hidden" name="age" th:value="${reportForm.age}">
+            <input type="hidden" name="heightCm" th:value="${reportForm.heightCm}">
+            <input type="hidden" name="weightKg" th:value="${reportForm.weightKg}">
+            <input type="hidden" name="activityLevel" th:value="${reportForm.activityLevel}"
+                   th:if="${reportForm.activityLevel != null}">
+            <input type="hidden" name="targetWeightKg" th:value="${reportForm.targetWeightKg}"
+                   th:if="${reportForm.targetWeightKg != null}">
+            <input type="hidden" name="bodyFatPercent" th:value="${reportForm.bodyFatPercent}"
+                   th:if="${reportForm.bodyFatPercent != null}">
+
+            <div class="field-grid">
+                <div class="field field-wide" th:if="${report.refineActivityLevel}">
+                    <label for="refineActivityLevel" class="field-label">평소 활동량 <span class="caption">(운동 제외)</span></label>
+                    <select th:field="*{refineActivityLevel}" th:errorclass="is-error"
+                            th:attr="aria-invalid=${#fields.hasErrors('refineActivityLevel')},aria-describedby=${#fields.hasErrors('refineActivityLevel')} ? 'refineActivityLevel-error' : 'refineActivityLevel-hint'">
+                        <option value="">선택 안 함</option>
+                        <option th:each="level : ${activityLevels}" th:value="${level}"
+                                th:text="|${level.step()}단계 · ${level.description()} · ${level.steps()}|">활동량</option>
+                    </select>
+                    <p id="refineActivityLevel-hint" class="hint">지금은 1단계(거의 앉아 있음)로 추정했어요</p>
+                    <p id="refineActivityLevel-error" class="field-error" th:if="${#fields.hasErrors('refineActivityLevel')}"
+                       th:errors="*{refineActivityLevel}">오류</p>
+                </div>
+                <div class="field" th:if="${report.refineTargetWeightKg}">
+                    <label for="refineTargetWeightKg" class="field-label">목표 체중</label>
+                    <div class="input-unit">
+                        <input type="text" inputmode="decimal" autocomplete="off" th:field="*{refineTargetWeightKg}"
+                               th:errorclass="is-error"
+                               th:attr="aria-invalid=${#fields.hasErrors('refineTargetWeightKg')},aria-describedby=${#fields.hasErrors('refineTargetWeightKg')} ? 'refineTargetWeightKg-error' : 'refineTargetWeightKg-hint'">
+                        <span class="unit" aria-hidden="true">kg</span>
+                    </div>
+                    <p id="refineTargetWeightKg-hint" class="hint">지금은 기본 목표(건강 체중)로 계산했어요</p>
+                    <p id="refineTargetWeightKg-error" class="field-error" th:if="${#fields.hasErrors('refineTargetWeightKg')}"
+                       th:errors="*{refineTargetWeightKg}">오류</p>
+                </div>
+                <div class="field" th:if="${report.refineBodyFatPercent}">
+                    <label for="refineBodyFatPercent" class="field-label">체지방률</label>
+                    <div class="input-unit">
+                        <input type="text" inputmode="decimal" autocomplete="off" th:field="*{refineBodyFatPercent}"
+                               th:errorclass="is-error"
+                               th:attr="aria-invalid=${#fields.hasErrors('refineBodyFatPercent')},aria-describedby=${#fields.hasErrors('refineBodyFatPercent')} ? 'refineBodyFatPercent-error' : 'refineBodyFatPercent-hint'">
+                        <span class="unit" aria-hidden="true">%</span>
+                    </div>
+                    <p id="refineBodyFatPercent-hint" class="hint">인바디 등으로 잰 값이 있으면 넣어 주세요</p>
+                    <p id="refineBodyFatPercent-error" class="field-error" th:if="${#fields.hasErrors('refineBodyFatPercent')}"
+                       th:errors="*{refineBodyFatPercent}">오류</p>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">다시 계산하기</button>
+        </form>
+    </th:block>
+    <p class="empty-state" th:unless="${report.refineActivityLevel or report.refineTargetWeightKg or report.refineBodyFatPercent}">
+        선택 항목을 모두 넣어서 지금이 가장 맞춤형 결과예요. 값을 바꾸려면 <a th:href="@{/}">입력 수정</a>에서 다시 계산해 주세요.
+    </p>
+</section>
+</body>
+</html>

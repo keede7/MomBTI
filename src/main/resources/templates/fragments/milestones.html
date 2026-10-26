@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section th:fragment="section" id="milestones" class="section" aria-labelledby="milestones-title">
+    <h2 id="milestones-title">단계별 목표<th:block
+            th:replace="~{fragments/evidence :: refs(${report.refs('WING_2011')})}"></th:block></h2>
+    <th:block th:unless="${report.milestones.isEmpty()}">
+        <p class="caption">식단만 기준 예상 시점이에요. 5%만 줄여도 건강 지표가 좋아지기 시작해요.</p>
+        <ol class="steps">
+            <li class="step" th:each="row : ${report.milestones}">
+                <span class="step-label" th:text="${row.label}">−5%</span>
+                <span class="step-value num" th:text="|${row.weightKg}kg|">76.0kg</span>
+                <span class="step-eta" th:text="${row.eta}">6주 뒤</span>
+                <span class="step-date caption" th:text="${row.date}">2026년 12월 첫째 주</span>
+            </li>
+        </ol>
+    </th:block>
+    <p th:if="${report.milestones.isEmpty()}" class="empty-state">
+        지금은 감량 단계 대신 <span class="num" th:text="${report.goalWeightKg}">55.0</span>kg 근처를 꾸준히 유지하는 것이 목표예요.
+    </p>
+</section>
+</body>
+</html>

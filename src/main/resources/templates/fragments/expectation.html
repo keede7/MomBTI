@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section th:fragment="section" id="expectation" class="section" aria-labelledby="expectation-title">
+    <h2 id="expectation-title">미리 알아둘 것</h2>
+    <ul class="notices">
+        <li th:each="notice : ${report.notices}">
+            <h3 th:text="${notice.title}">초기 수분 감소</h3>
+            <p th:text="${notice.body}">설명</p>
+        </li>
+    </ul>
+    <p class="caption">예측에는 살이 빠질수록 몸이 에너지를 아끼는 현상(적응성 열발생)을 적자의 10%로 반영했어요
+        <span th:replace="~{fragments/evidence :: assumed}"></span><th:block
+                th:replace="~{fragments/evidence :: refs(${report.refs('ADAPTIVE_THERMOGENESIS')})}"></th:block></p>
+
+    <h3>자주 묻는 질문</h3>
+    <div class="faqs">
+        <details class="faq" th:each="faq : ${report.faqs}">
+            <summary th:text="${faq.question}">질문</summary>
+            <p><span th:text="${faq.answer}">답</span><th:block
+                    th:replace="~{fragments/evidence :: enumRefs(${faq.evidence})}"></th:block></p>
+        </details>
+    </div>
+</section>
+</body>
+</html>

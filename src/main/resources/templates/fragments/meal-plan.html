@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section th:fragment="section" id="meal-plan" class="section" aria-labelledby="meal-plan-title"
+         th:with="macro=${report.macroPlan}, meal=${report.mealPlan}">
+    <h2 id="meal-plan-title">식단</h2>
+    <p class="status-value">하루 <span class="num" th:text="${report.summary.intakeKcal}">1,500</span>kcal</p>
+
+    <h3>탄단지<th:block
+            th:replace="~{fragments/evidence :: refs(${report.refs('LEIDY_2015', 'MORTON_2018', 'PROT_AGE_2013', 'IOM_AMDR_2005')})}"></th:block></h3>
+    <div class="table-scroll" tabindex="0" role="region" aria-labelledby="macro-caption">
+        <table class="data-table macro-table">
+            <caption id="macro-caption">하루 탄수화물·단백질·지방</caption>
+            <thead>
+            <tr><th scope="col">영양소</th><th scope="col">양</th><th scope="col">열량</th><th scope="col">비율</th></tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">단백질</th>
+                <td class="num" th:text="|${#numbers.formatInteger(macro.proteinG, 1, 'COMMA')}g|">104g</td>
+                <td class="num" th:text="|${#numbers.formatInteger(macro.proteinKcal, 1, 'COMMA')}kcal|">416kcal</td>
+                <td><meter class="macro-meter macro-protein" min="0" max="100" th:value="${macro.proteinPercent}"></meter>
+                    <span class="num" th:text="|${macro.proteinPercent}%|">28%</span></td>
+            </tr>
+            <tr>
+                <th scope="row">지방</th>
+                <td class="num" th:text="|${#numbers.formatInteger(macro.fatG, 1, 'COMMA')}g|">42g</td>
+                <td class="num" th:text="|${#numbers.formatInteger(macro.fatKcal, 1, 'COMMA')}kcal|">375kcal</td>
+                <td><meter class="macro-meter macro-fat" min="0" max="100" th:value="${macro.fatPercent}"></meter>
+                    <span class="num" th:text="|${macro.fatPercent}%|">25%</span></td>
+            </tr>
+            <tr>
+                <th scope="row">탄수화물</th>
+                <td class="num" th:text="|${#numbers.formatInteger(macro.carbG, 1, 'COMMA')}g|">177g</td>
+                <td class="num" th:text="|${#numbers.formatInteger(macro.carbKcal, 1, 'COMMA')}kcal|">709kcal</td>
+                <td><meter class="macro-meter macro-carb" min="0" max="100" th:value="${macro.carbPercent}"></meter>
+                    <span class="num" th:text="|${macro.carbPercent}%|">47%</span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <p class="plain">쉽게 말하면: 단백질을 넉넉히 먹으면 살이 빠질 때 근육이 덜 빠져요. 지방은 25%로 두고 나머지를 탄수화물로 채웠어요.</p>
+
+    <h3>끼니별 예시</h3>
+    <p class="caption" th:if="${meal.outOfTemplateRange}">목표 칼로리가 준비된 식단 범위(1,200~3,600kcal) 밖이라 가장 가까운 식단의 분량을 맞춰 조정했어요</p>
+    <div class="meals">
+        <article class="meal" th:each="m : ${meal.meals}">
+            <h4><span th:text="${m.type.label()}">아침</span>
+                <span class="caption num" th:text="|${#numbers.formatInteger(m.kcal, 1, 'COMMA')}kcal|">400kcal</span></h4>
+            <ul class="meal-items">
+                <li th:each="item : ${m.items}">
+                    <span th:text="${item.name}">현미밥</span>
+                    <span th:text="${item.portion}">2/3공기</span>
+                    <span class="caption num" th:text="|${#numbers.formatInteger(item.grams, 1, 'COMMA')}g · ${#numbers.formatInteger(item.kcal, 1, 'COMMA')}kcal|">140g · 210kcal</span>
+                </li>
+            </ul>
+            <p class="caption">대체 메뉴: <span th:text="${m.alternative}">대체</span></p>
+            <p class="caption" th:text="${m.convenienceOption}">편의점: 편의점 옵션</p>
+        </article>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- 본문 숫자 뒤 각주 [n] → 근거 목록 #refN. rows는 ReportView.refs(...) 결과 -->
+<sup th:fragment="refs(rows)" class="fn" th:unless="${rows.isEmpty()}"><a th:each="row : ${rows}"
+        th:href="|#ref${row.number}|" th:text="|[${row.number}]|"
+        th:attr="aria-label=|근거 ${row.number}|">[1]</a></sup>
+
+<!-- Evidence enum 목록의 각주 (FAQ, 개선할 부분) -->
+<sup th:fragment="enumRefs(list)" class="fn" th:unless="${list.isEmpty()}"><th:block th:each="e : ${list}" th:with="n=${report.footnotes[e.key()]}"><a
+        th:if="${n != null}" th:href="|#ref${n}|" th:text="|[${n}]|" th:attr="aria-label=|근거 ${n}|">[1]</a></th:block></sup>
+
+<span th:fragment="estimated" class="tag tag-estimated" title="기본값으로 계산한 값이에요">추정</span>
+<span th:fragment="assumed" class="tag tag-assumed" title="논문 공식이 아니라 단순화를 위한 가정이에요">가정</span>
+
+<section th:fragment="section" id="evidence" class="section" aria-labelledby="evidence-title">
+    <h2 id="evidence-title">근거와 면책</h2>
+    <p class="caption">본문의 [번호]는 아래 목록과 연결돼요. "가정"은 논문 공식이 아니라 단순화를 위해 정한 값이에요.</p>
+    <ol class="evidence-list">
+        <li th:each="row : ${report.evidence}" th:id="|ref${row.number}|">
+            <span class="evidence-num" th:text="|[${row.number}]|">[1]</span>
+            <span class="evidence-body">
+                <span th:text="${row.authors}">저자</span><th:block th:if="${row.year > 0}"> (<span th:text="${row.year}">연도</span>)</th:block>.
+                <span th:text="${row.title}">제목</span>
+                <span class="caption" th:text="${row.identifier}">PMID</span>
+                <th:block th:if="${row.assumption}"><span th:replace="~{fragments/evidence :: assumed}"></span></th:block>
+            </span>
+        </li>
+    </ol>
+    <p class="disclaimer">의학적 진단이 아니며 개인에 따라 다를 수 있어요. 예측은 보장이 아니라 계획을 세우기 위한 참고값이에요.</p>
+</section>
+
+</body>
+</html>

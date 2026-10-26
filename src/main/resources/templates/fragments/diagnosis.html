@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section th:fragment="section" id="diagnosis" class="section" aria-labelledby="diagnosis-title">
+    <h2 id="diagnosis-title">현재 상태</h2>
+    <dl class="status-list">
+        <div class="status-item">
+            <dt>BMI<th:block th:replace="~{fragments/evidence :: refs(${report.refs('KSSO_2022')})}"></th:block></dt>
+            <dd>
+                <p class="status-value"><span class="num" th:text="${report.status.bmi}">25.6</span>
+                    <span class="caption" th:text="${report.status.bmiCategory}">관리 필요</span></p>
+                <div class="range-bar" role="img"
+                     th:attr="aria-label=|BMI ${report.status.bmi}, ${report.status.bmiCategory} 구간|">
+                    <span th:each="segment : ${ {'저체중', '정상', '관리 권장', '관리 필요', '적극 관리'} }"
+                          th:class="${segment == report.status.bmiCategory} ? 'range-seg is-current' : 'range-seg'">
+                        <span class="range-label" th:text="${segment}">정상</span>
+                    </span>
+                </div>
+                <p class="plain">쉽게 말하면: 키에 비해 몸무게가 어느 정도인지 보는 숫자예요. 한국 기준 18.5~22.9가 정상 구간이에요.</p>
+            </dd>
+        </div>
+        <div class="status-item">
+            <dt>체지방률<th:block th:replace="~{fragments/evidence :: refs(${report.refs('DEURENBERG_1991')})}"></th:block></dt>
+            <dd>
+                <p class="status-value"><span class="num" th:text="|${report.status.bodyFatPercent}%|">30.0%</span>
+                    <th:block th:if="${report.status.bodyFatEstimated}"><span th:replace="~{fragments/evidence :: estimated}"></span></th:block>
+                    <span class="caption">체지방량 <span class="num" th:text="${report.status.fatMassKg}">20.4</span>kg</span>
+                    <th:block th:if="${report.status.bodyFatEstimated}"><span th:replace="~{fragments/evidence :: estimated}"></span></th:block></p>
+                <p class="warn" th:if="${report.status.bodyFatLargeError}">오차가 클 수 있음</p>
+                <p class="plain">쉽게 말하면: 몸무게 중 지방이 차지하는 비율이에요. 예측에서 지방과 근육이 얼마나 빠질지 나누는 데 써요.</p>
+            </dd>
+        </div>
+        <div class="status-item">
+            <dt>기초대사량<th:block
+                    th:replace="~{fragments/evidence :: refs(${report.refs('MIFFLIN_1990', 'CUNNINGHAM_1991', 'FRANKENFIELD_2005')})}"></th:block></dt>
+            <dd>
+                <p class="status-value"><span class="num" th:text="${report.status.bmrKcal}">1,400</span>kcal
+                    <th:block th:if="${report.status.bmrEstimated}"><span th:replace="~{fragments/evidence :: estimated}"></span></th:block></p>
+                <p class="plain">쉽게 말하면: 하루 종일 가만히 누워 있어도 몸이 쓰는 에너지예요.</p>
+            </dd>
+        </div>
+        <div class="status-item">
+            <dt>하루 소비량<th:block
+                    th:replace="~{fragments/evidence :: refs(${report.refs('FAO_WHO_UNU_2004', 'TUDOR_LOCKE_2004')})}"></th:block></dt>
+            <dd>
+                <p class="status-value"><span class="num" th:text="${report.status.tdeeKcal}">1,960</span>kcal
+                    <th:block th:if="${report.status.tdeeEstimated}"><span th:replace="~{fragments/evidence :: estimated}"></span></th:block>
+                    <span class="caption">범위 <span class="num" th:text="|${report.status.tdeeLowerKcal}~${report.status.tdeeUpperKcal}|">1,760~2,460</span>kcal</span></p>
+                <p class="caption" th:if="${report.status.tdeeEstimated}">활동량을 알려주면 오차가 줄어요 <a href="#refine">활동량 넣기</a></p>
+                <p class="plain">쉽게 말하면: 운동을 빼고 평소 생활로 하루에 쓰는 에너지예요. 이보다 적게 먹으면 체중이 줄어요.</p>
+            </dd>
+        </div>
+    </dl>
+</section>
+</body>
+</html>

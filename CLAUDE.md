@@ -17,6 +17,7 @@
 - CRITICAL: 계산 로직은 도메인(`core/domains/report`)에만 둘 것. 컨트롤러, DTO, 템플릿, JS에서 계산 금지 (JS의 BMI 미리보기는 표시 전용)
 - CRITICAL: 사용자 입력값을 로그, 예외 메시지, 메트릭에 남기지 말 것. 에러 로그에는 requestId와 예외 타입만 기록
 - CRITICAL: 템플릿 출력은 `th:text`만 사용 (`th:utext` 금지)
+- CRITICAL: 숫자 타입은 소수점 자리를 고려해 `BigDecimal` 을 사용할 것 
 - 도메인 계층(calculator, simulation, advice, safety, defaults)은 Spring에 의존하지 않는 순수 Java로 작성
 - 안전 규칙(미성년자 차단, BMI 18.5 미만 감량 금지, 목표 BMI 하한, 칼로리 하한, 적자 상한)은 `SafetyPolicy`에만 둘 것
 - 차트는 항상 같은 데이터의 `<table>`과 함께 렌더 (JS가 꺼져 있어도 정보 손실 없음)

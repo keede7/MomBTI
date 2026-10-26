@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MomBTI · 다이어트 리포트</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script th:src="@{/js/form.js}" defer></script>
+</head>
+<body>
+<main class="page">
+    <article class="sheet">
+        <header class="sheet-head">
+            <h1>MomBTI</h1>
+            <p class="lead">성별·나이·키·몸무게만 넣으면 하루 섭취 목표와 체중 변화 예측을 보여드려요.</p>
+            <p class="caption">입력한 값은 저장하지 않아요. 임신·수유 중이거나 치료 중이라면 시작 전에 의료진과 상의하세요.</p>
+        </header>
+
+        <form th:action="@{/report}" th:object="${reportForm}" method="post" novalidate id="report-form">
+            <div th:if="${#fields.hasErrors('*')}" id="error-summary" class="error-summary" role="alert" tabindex="-1">
+                <p class="error-summary-title">입력을 확인해 주세요</p>
+                <ul>
+                    <li th:each="error : ${#fields.detailedErrors()}">
+                        <a th:href="|#${error.fieldName}|" th:text="${error.message}">오류</a>
+                    </li>
+                </ul>
+            </div>
+
+            <section class="form-group" aria-labelledby="required-title">
+                <h2 id="required-title" class="group-title">기본 정보 <span class="tag tag-required">필수 4개</span></h2>
+                <div class="field-grid">
+                    <fieldset id="gender" class="field field-gender"
+                              th:attr="aria-describedby=${#fields.hasErrors('gender')} ? 'gender-hint gender-error' : 'gender-hint'">
+                        <legend class="field-label">성별</legend>
+                        <div class="segmented">
+                            <label class="segment"><input type="radio" th:field="*{gender}" value="MALE"><span>남</span></label>
+                            <label class="segment"><input type="radio" th:field="*{gender}" value="FEMALE"><span>여</span></label>
+                        </div>
+                        <p id="gender-hint" class="hint">계산 공식에 쓰는 생물학적 성별이에요</p>
+                        <p id="gender-error" class="field-error" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}">오류</p>
+                    </fieldset>
+
+                    <div class="field">
+                        <label for="age" class="field-label">나이</label>
+                        <div class="input-unit">
+                            <input type="text" inputmode="numeric" autocomplete="off" th:field="*{age}"
+                                   th:errorclass="is-error"
+                                   th:attr="aria-invalid=${#fields.hasErrors('age')},aria-describedby=${#fields.hasErrors('age')} ? 'age-hint age-error' : 'age-hint'">
+                            <span class="unit" aria-hidden="true">세</span>
+                        </div>
+                        <p id="age-hint" class="hint">기초대사량 계산에 필요해요 (19~80세)</p>
+                        <p id="age-error" class="field-error" th:if="${#fields.hasErrors('age')}" th:errors="*{age}">오류</p>
+                    </div>
+
+                    <div class="field">
+                        <label for="heightCm" class="field-label">키</label>
+                        <div class="input-unit">
+                            <input type="text" inputmode="decimal" autocomplete="off" th:field="*{heightCm}"
+                                   th:errorclass="is-error"
+                                   th:attr="aria-invalid=${#fields.hasErrors('heightCm')},aria-describedby=${#fields.hasErrors('heightCm')} ? 'heightCm-hint heightCm-error' : 'heightCm-hint'">
+                            <span class="unit" aria-hidden="true">cm</span>
+                        </div>
+                        <p id="heightCm-hint" class="hint">예: 165.5</p>
+                        <p id="heightCm-error" class="field-error" th:if="${#fields.hasErrors('heightCm')}" th:errors="*{heightCm}">오류</p>
+                    </div>
+
+                    <div class="field">
+                        <label for="weightKg" class="field-label">몸무게</label>
+                        <div class="input-unit">
+                            <input type="text" inputmode="decimal" autocomplete="off" th:field="*{weightKg}"
+                                   th:errorclass="is-error"
+                                   th:attr="aria-invalid=${#fields.hasErrors('weightKg')},aria-describedby=${#fields.hasErrors('weightKg')} ? 'weightKg-hint weightKg-error' : 'weightKg-hint'">
+                            <span class="unit" aria-hidden="true">kg</span>
+                        </div>
+                        <p id="weightKg-hint" class="hint">예: 72.5</p>
+                        <p id="weightKg-error" class="field-error" th:if="${#fields.hasErrors('weightKg')}" th:errors="*{weightKg}">오류</p>
+                    </div>
+                </div>
+                <p id="bmi-preview" class="preview" aria-live="polite" hidden></p>
+            </section>
+
+            <section class="form-group form-group-optional" aria-labelledby="optional-title">
+                <h2 id="optional-title" class="group-title">더 맞춤형으로</h2>
+                <p class="caption">넣지 않아도 완전한 리포트를 받아요. 넣을수록 예측 오차가 줄어요.</p>
+                <div class="field-grid">
+                    <div class="field field-wide">
+                        <label for="activityLevel" class="field-label">평소 활동량 <span class="tag tag-optional">선택</span></label>
+                        <select th:field="*{activityLevel}" th:errorclass="is-error"
+                                th:attr="aria-invalid=${#fields.hasErrors('activityLevel')},aria-describedby=${#fields.hasErrors('activityLevel')} ? 'activityLevel-hint activityLevel-error' : 'activityLevel-hint'">
+                            <option value="">선택 안 함</option>
+                            <option th:each="level : ${activityLevels}" th:value="${level}"
+                                    th:text="|${level.step()}단계 · ${level.description()} · ${level.steps()}|">활동량</option>
+                        </select>
+                        <p id="activityLevel-hint" class="hint">운동은 빼고 직업과 이동만 생각해 주세요. 운동은 리포트에서 따로 비교해요</p>
+                        <p id="activityLevel-error" class="field-error" th:if="${#fields.hasErrors('activityLevel')}" th:errors="*{activityLevel}">오류</p>
+                    </div>
+
+                    <div class="field">
+                        <label for="targetWeightKg" class="field-label">목표 체중 <span class="tag tag-optional">선택</span></label>
+                        <div class="input-unit">
+                            <input type="text" inputmode="decimal" autocomplete="off" th:field="*{targetWeightKg}"
+                                   th:errorclass="is-error"
+                                   th:attr="aria-invalid=${#fields.hasErrors('targetWeightKg')},aria-describedby=${#fields.hasErrors('targetWeightKg')} ? 'targetWeightKg-hint targetWeightKg-error' : 'targetWeightKg-hint'">
+                            <span class="unit" aria-hidden="true">kg</span>
+                        </div>
+                        <p id="targetWeightKg-hint" class="hint">비워 두면 건강 체중(BMI 22)으로 계산해요</p>
+                        <p id="target-preview" class="preview" aria-live="polite" hidden></p>
+                        <p id="targetWeightKg-error" class="field-error" th:if="${#fields.hasErrors('targetWeightKg')}" th:errors="*{targetWeightKg}">오류</p>
+                    </div>
+
+                    <div class="field">
+                        <label for="bodyFatPercent" class="field-label">체지방률 <span class="tag tag-optional">선택</span></label>
+                        <div class="input-unit">
+                            <input type="text" inputmode="decimal" autocomplete="off" th:field="*{bodyFatPercent}"
+                                   th:errorclass="is-error"
+                                   th:attr="aria-invalid=${#fields.hasErrors('bodyFatPercent')},aria-describedby=${#fields.hasErrors('bodyFatPercent')} ? 'bodyFatPercent-hint bodyFatPercent-error' : 'bodyFatPercent-hint'">
+                            <span class="unit" aria-hidden="true">%</span>
+                        </div>
+                        <p id="bodyFatPercent-hint" class="hint">모르면 비워두세요, 추정해 드려요</p>
+                        <p id="bodyFatPercent-error" class="field-error" th:if="${#fields.hasErrors('bodyFatPercent')}" th:errors="*{bodyFatPercent}">오류</p>
+                    </div>
+                </div>
+            </section>
+
+            <p id="optional-hint" class="inline-hint" aria-live="polite">선택 항목을 비워 두면 근거 있는 기본값으로 추정해요. 그대로 분석해도 괜찮아요.</p>
+            <button type="submit" class="btn btn-primary">분석하기</button>
+        </form>
+    </article>
+</main>
+</body>
+</html>

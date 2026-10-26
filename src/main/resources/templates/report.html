@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MomBTI · 내 다이어트 리포트</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+    <script th:src="@{/js/report-chart.js}" defer></script>
+</head>
+<body>
+<main class="page">
+    <article class="sheet report">
+        <!-- 1. 상단 바 -->
+        <header id="topbar" class="topbar">
+            <p class="topbar-safety">임신·수유 중이거나 치료 중이라면 시작 전에 의료진과 상의하세요</p>
+            <div class="topbar-row">
+                <span class="caption">결과는 저장되지 않아요</span>
+                <span class="badge" th:text="${report.badge}">기본 분석</span>
+                <a class="btn btn-ghost btn-small" th:href="@{/}">입력 수정</a>
+            </div>
+        </header>
+
+        <div class="sheet-head">
+            <p class="caption" th:text="|${report.startDate} 기준 리포트|">기준</p>
+            <h1 th:text="${report.headline}">리포트</h1>
+            <p th:if="${report.status.bodyFatMismatch}" class="notice notice-warn" th:text="#{report.bodyFatMismatch}">체지방률 경고</p>
+            <p th:if="${report.positiveEmptyState}" class="notice notice-good">지금 잘 관리하고 있어요</p>
+        </div>
+
+        <!-- 2. 요약 카드 -->
+        <section th:replace="~{fragments/summary-cards :: section}"></section>
+        <!-- 3. 변화 그래프 + 같은 데이터의 표 -->
+        <section th:replace="~{fragments/chart :: section}"></section>
+        <!-- 4. 단계별 목표 -->
+        <section th:replace="~{fragments/milestones :: section}"></section>
+        <!-- 5. 목표 도달 예측 표 -->
+        <section th:replace="~{fragments/eta-table :: section}"></section>
+        <!-- 6. 현재 상태 -->
+        <section th:replace="~{fragments/diagnosis :: section}"></section>
+        <!-- 7. 식단 -->
+        <section th:replace="~{fragments/meal-plan :: section}"></section>
+        <!-- 8. 미리 알아둘 것 -->
+        <section th:replace="~{fragments/expectation :: section}"></section>
+        <!-- 9. 더 정확하게 보기 -->
+        <section th:replace="~{fragments/refine-panel :: section}"></section>
+        <!-- 10. 개선할 부분 -->
+        <section th:replace="~{fragments/improvements :: section}"></section>
+        <!-- 11. 근거와 면책 -->
+        <section th:replace="~{fragments/evidence :: section}"></section>
+    </article>
+</main>
+</body>
+</html>

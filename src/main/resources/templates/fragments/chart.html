@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section th:fragment="section" id="chart" class="section" aria-labelledby="chart-title">
+    <h2 id="chart-title">변화 그래프<th:block
+            th:replace="~{fragments/evidence :: refs(${report.refs('HALL_2007_FORBES', 'HALL_2008', 'HALL_2011', 'ADAPTIVE_THERMOGENESIS')})}"></th:block></h2>
+
+    <p class="chart-status" th:switch="${chart.window}">
+        <span th:case="'GOAL_IN_VIEW'">목표 도달: <span class="num" th:text="${chart.goalWeek}">8</span>주 뒤 (식단만 기준)</span>
+        <span th:case="'GOAL_WITHIN_SIX_MONTHS'">목표까지 약 <span class="num" th:text="${chart.goalWeek}">18</span>주 (식단만 기준). 6개월까지 보기로 이어서 볼 수 있어요</span>
+        <span th:case="'GOAL_BEYOND_SIX_MONTHS'">6개월 안에는 어려워요. 중간 목표부터 차근차근 가 보세요</span>
+        <span th:case="*">지금 체중을 유지하는 흐름이에요</span>
+    </p>
+    <th:block th:if="${chart.window == 'GOAL_BEYOND_SIX_MONTHS'}">
+        <ul class="chart-milestones">
+            <li th:each="row : ${report.milestones}" th:if="${row.label != '지금' and row.label != '목표'}">
+                <span th:text="${row.label}">−5%</span> <span class="num" th:text="|${row.weightKg}kg|">76.0kg</span>:
+                <span th:text="${row.eta}">10주 뒤</span>
+            </li>
+        </ul>
+        <p class="caption" th:if="${report.dietOnlyUnreachable}">
+            식단만으로는 52주 뒤 약 <span class="num" th:text="${report.week52WeightKg}">90.0</span>kg,
+            같은 섭취량을 아주 오래 이어 가면 약 <span class="num" th:text="${report.equilibriumWeightKg}">85.0</span>kg 근처에서 멈춰요(평형 체중)
+        </p>
+    </th:block>
+    <p class="caption" th:if="${report.dietOnlyMaintains}">하루 섭취를 최소 권장량보다 줄이지 않아서 식단만 라인은 유지선이에요. 운동 라인으로 감량을 확인해 보세요</p>
+
+    <div class="chart-controls" data-chart-controls hidden>
+        <div class="toggle-group" role="group" aria-label="시나리오 표시" data-legend></div>
+        <div class="toggle-group" role="group" aria-label="기간과 보정">
+            <button type="button" class="toggle" id="toggle-six-months" aria-pressed="false"
+                    th:if="${chart.sixMonthToggle}">6개월까지 보기</button>
+            <button type="button" class="toggle" id="toggle-adherence" aria-pressed="false">현실 보정
+                <span th:replace="~{fragments/evidence :: assumed}"></span></button>
+        </div>
+    </div>
+    <div class="chart-box" data-chart-box hidden>
+        <canvas id="weight-chart" role="img"
+                aria-label="주차별 예상 체중 그래프. 같은 내용을 아래 표로 볼 수 있어요"
+                th:data-chart="${chartJson}"></canvas>
+    </div>
+
+    <p class="caption chart-legend-note">
+        운동 1회 = 중강도 45분(빠르게 걷기 수준) 가정<span th:replace="~{fragments/evidence :: assumed}"></span><th:block
+            th:replace="~{fragments/evidence :: refs(${report.refs('HERRMANN_2024', 'EXERCISE_SESSION_45')})}"></th:block>
+        · 개인차 범위 = 기초대사량 ±10%<th:block
+            th:replace="~{fragments/evidence :: refs(${report.refs('FRANKENFIELD_2005')})}"></th:block>
+        · 현실 보정 = 계획의 80%만 지킨 경우<span th:replace="~{fragments/evidence :: assumed}"></span><th:block
+            th:replace="~{fragments/evidence :: refs(${report.refs('ADHERENCE_80')})}"></th:block>
+    </p>
+
+    <th:block th:replace="~{fragments/chart-table :: table}"></th:block>
+</section>
+</body>
+</html>

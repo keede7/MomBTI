@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section th:fragment="section" id="summary" class="section" aria-labelledby="summary-title">
+    <h2 id="summary-title" class="visually-hidden">요약</h2>
+    <div class="cards">
+        <div class="card">
+            <p class="card-label">목표 도달 예상</p>
+            <p class="card-value"><span th:text="${report.summary.etaRange}">18~23주</span><th:block
+                    th:replace="~{fragments/evidence :: refs(${report.refs('HALL_2011', 'FRANKENFIELD_2005')})}"></th:block></p>
+            <p class="card-sub" th:text="${report.summary.etaDate}">2027년 3월 둘째 주</p>
+            <p class="card-sub">식단만 기준 · 목표 <span class="num" th:text="${report.goalWeightKg}">60.0</span>kg</p>
+            <p class="card-sub" th:if="${report.defaultGoal and report.mode == 'LOSS'}">
+                기본 목표(건강 체중)로 계산했어요 <a href="#refine">바꾸기</a>
+            </p>
+        </div>
+        <div class="card">
+            <p class="card-label">하루 섭취 목표</p>
+            <p class="card-value"><span th:text="${report.summary.intakeKcal}">1,500</span><span class="card-unit">kcal</span><th:block
+                    th:replace="~{fragments/evidence :: refs(${report.refs('AHA_ACC_TOS_2013', 'HELMS_2014', 'HALL_2008')})}"></th:block></p>
+            <p class="card-sub">소비량 <span class="num" th:text="${report.summary.tdeeKcal}">2,000</span>kcal보다
+                <span class="num" th:text="${report.summary.deficitKcal}">500</span>kcal 적게
+                <th:block th:if="${report.summary.tdeeEstimated}"><span th:replace="~{fragments/evidence :: estimated}"></span></th:block>
+            </p>
+            <p class="card-sub" th:if="${report.floorApplied}">최소 권장량으로 맞췄어요</p>
+        </div>
+        <div class="card">
+            <p class="card-label">3개월 후 예상 체중</p>
+            <p class="card-value"><span th:text="${report.summary.weightAt12WeeksKg}">64.4</span><span class="card-unit">kg</span><th:block
+                    th:replace="~{fragments/evidence :: refs(${report.refs('HALL_2011')})}"></th:block></p>
+            <p class="card-sub">식단만 기준 · <span class="num" th:text="|${report.summary.changeAt12WeeksKg}kg|">−3.6kg</span></p>
+        </div>
+        <div class="card">
+            <p class="card-label">주당 감량 속도</p>
+            <p class="card-value"><span th:text="${report.summary.weeklyLossKg}">0.4</span><span class="card-unit">kg/주</span><th:block
+                    th:replace="~{fragments/evidence :: refs(${report.refs('HELMS_2014')})}"></th:block></p>
+            <p class="card-sub">첫 4주 평균 ·
+                <span th:if="${report.summary.weeklyLossSafe}" class="good">안전 범위 안</span>
+                <span th:unless="${report.summary.weeklyLossSafe}" class="warn">안전 범위보다 빨라요</span>
+            </p>
+        </div>
+    </div>
+</section>
+</body>
+</html>

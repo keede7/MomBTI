@@ -1,0 +1,72 @@
+{
+  "project": "MomBTI",
+  "phase": "mvp",
+  "steps": [
+    {
+      "step": 0,
+      "name": "setup-model",
+      "status": "completed",
+      "started_at": "2026-10-26T15:46:47+0900",
+      "summary": "Boot 4 starter(webmvc/thymeleaf/validation) 구성, application.yml 에러 노출 차단, 도메인 모델(record/sealed, BigDecimal), Evidence enum(EVIDENCE.md 22개 key 1:1, 문서 파싱 테스트), ProfileDefaults→ResolvedProfile(+최소 BodyIndexCalculator/BodyCompositionEstimator), ClockConfig(Asia/Seoul)",
+      "completed_at": "2026-10-26T15:50:39+0900"
+    },
+    {
+      "step": 1,
+      "name": "calculators",
+      "status": "completed",
+      "started_at": "2026-10-26T15:50:39+0900",
+      "summary": "calculator 6종 TDD 구현: BMI+KSSO 구간(BmiCategory), Deurenberg+BMI≥41 오차 플래그+지방/제지방량, Mifflin/Cunningham(체지방률 입력 시) BMR, TDEE, 운동(MET 4.8×45분), MacroCalculator(1.6g/kg·BMI≥30 목표체중·65+ 최소1.2g/kg, 지방25%, 탄수화물 kcal 보정 E-21 → MacroPlan)",
+      "completed_at": "2026-10-26T15:53:52+0900"
+    },
+    {
+      "step": 2,
+      "name": "safety-energy-target",
+      "status": "completed",
+      "started_at": "2026-10-26T15:53:52+0900",
+      "summary": "SafetyPolicy(E-04 미성년 차단, E-05/E-13 DomainValidationException(code+field, 최저 체중 안내값), E-06 65+ 적자 20%·단백질 1.2g/kg(MacroCalculator가 위임), E-11/E-12/E-14/E-15 ReportMode 결정, E-16 하한 여1200/남1500) + EnergyTargetCalculator(Forbes ρ 기반 1% 상한, 25%/20% 비율 상한, 10kcal 반올림, E-17 dietOnlyMaintains → EnergyTarget)",
+      "completed_at": "2026-10-26T15:57:17+0900"
+    },
+    {
+      "step": 3,
+      "name": "simulation",
+      "status": "completed",
+      "started_at": "2026-10-26T15:57:17+0900",
+      "summary": "simulation TDD 구현: ScenarioFactory(4개), WeightProjectionSimulator(Hall 단순화 364일·7일 기록, 매일 BMR 재계산, 적응 10%, Forbes 분배, 변형 BASE/BMR×0.9/×1.1/현실보정80% → ScenarioProjections, 섭취 고정·E-17 유지선, 불변식 E-29 SimulationInvariantException, 평형 체중), GoalEtaCalculator(목표+0.05kg 첫 주, 밴드 범위 GoalEtaRange, 52주 미도달 Unreachable), MilestoneCalculator(−5/−10%/목표, 서울 Clock 날짜), ChartWindowPolicy(E-18/19/20 ChartWindow sealed, 0~26주 2주 간격)",
+      "completed_at": "2026-10-26T16:05:09+0900"
+    },
+    {
+      "step": 4,
+      "name": "advice",
+      "status": "completed",
+      "started_at": "2026-10-26T16:05:09+0900",
+      "summary": "advice TDD 구현: MealPlanCatalog(1,200~3,600kcal 200 간격 13개 한식 템플릿, 아침·점심·저녁·간식, 1/3·1/2·2/3 생활 단위+g, 대체 메뉴·편의점 옵션, 가장 가까운 템플릿을 목표 kcal 비율로 조정·범위 밖 E-22 → MealPlan ±5%), ImprovementRuleEngine(ImprovementRule 7종 BMI/65+근감소/하한/단백질/활동량/체지방률/기본목표, 데이터 기반 PERSONAL 먼저·GENERAL_TIP 구분, 최대 5개), AdviceNarrator+TemplateAdviceNarrator(AdviceContext 계산값만 사용, 모드별 헤드라인 E-11/E-12/E-16/E-17, 미리 알아둘 것 4개·FAQ 3개, E-30 긍정 빈 상태), SafetyPolicy.isSenior 추가",
+      "completed_at": "2026-10-26T16:12:19+0900"
+    },
+    {
+      "step": 5,
+      "name": "report-service",
+      "status": "completed",
+      "started_at": "2026-10-26T16:12:19+0900",
+      "summary": "Report(sealed ReportResult: Report | MinorBlocked) + SummaryCards/CurrentStatus/ScenarioEta 모델, ReportQueryService(SafetyPolicy→ProfileDefaults→지표→Mode→EnergyTarget→시나리오 4개×기본/±10%/80%→ETA·마일스톤·ChartWindow·차트 26주 데이터→Macro·MealPlan·Improvement→Narrator, 사용한 Evidence만 enum 순서로 수집), DomainBeanConfig, 보조 메서드(Projection 주차 체중·첫 4주 감량, SafetyPolicy 안전 범위, TdeeCalculator 소비량 범위), E-01/E-02(8조합)/페르소나 3개 ±1%/미성년 테스트",
+      "completed_at": "2026-10-26T16:18:22+0900"
+    },
+    {
+      "step": 6,
+      "name": "web",
+      "status": "completed",
+      "started_at": "2026-10-26T16:18:22+0900",
+      "summary": "web TDD 구현: NumberNormalizer(전각·공백·쉼표 소수점·단위 문자 정규화, 실패 시 typeMismatch, E-10), RequestIdFilter(MDC·X-Request-Id), SecurityHeaderFilter(CSP self+cdnjs/Google Fonts), ReportForm(@NotNull·범위·소수 1자리, 키 E-07/E-08 분리)·RefineForm(refine 접두사)·ReportFormMapper(병합)·ReportView(kcal 10단위·0.1kg·\"N월 N째 주\")·ChartDataView(0~26주 2주 간격 JSON, data-chart 속성), ReportController(GET / · POST /report · POST /report/refine 전체 재검증 E-26·패널 오류 시 기존 리포트 400 E-25 · GET /report 302 E-27, DomainValidationException→BindingResult, E-09 키·몸무게 둘 다), GlobalExceptionHandler+ErrorCode(404/405→error/4xx E-28, 그 외→error/5xx+requestId, 로그는 requestId·예외 타입만 E-29), 도메인 보강(SafetyPolicy E-09 BMI 12~70·E-23 체지방률 남5/여12~60, CurrentStatus.bodyFatMismatch E-24), 최소 템플릿 골격, messages(E-코드), 요청 크기 제한",
+      "completed_at": "2026-10-26T16:31:30+0900"
+    },
+    {
+      "step": 7,
+      "name": "templates-chart",
+      "status": "completed",
+      "started_at": "2026-10-26T16:31:30+0900",
+      "summary": "templates-chart: index.html(필수 4개·선택 3개 \"선택\" 태그·인라인 안내·오류 요약+첫 오류 포커스), report.html+fragments 11개(PRD 리포트 구성 1~11 순서, 추정/가정 태그, 각주→#refN 근거 앵커, th:text만), minor·error/4xx·5xx(requestId), app.css(UI_GUIDE 토큰 라이트/다크, 360/768/1024, 760px 이하 카드 2×2), report-chart.js(Chart.js 4.4.1 cdnjs, 서버 데이터만 그림, 기본 12주·ChartWindowPolicy대로 6개월 토글, 범례 토글 기본 식단만+주4일, ±10% 밴드, 목표선, 현실 보정 토글, 애니메이션 끔), form.js(BMI·목표 미리보기 표시 전용), 페르소나 3개 E2E(11개 섹션 순서·null/N/A 없음·차트 표 14행 JS 없이 렌더·E01/E11/E15/E18/E20·th:utext 없음)",
+      "completed_at": "2026-10-26T22:33:17+0900"
+    }
+  ],
+  "created_at": "2026-10-26T15:46:47+0900",
+  "completed_at": "2026-10-26T22:33:17+0900"
+}
