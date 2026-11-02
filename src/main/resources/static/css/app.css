@@ -387,7 +387,12 @@ input[type="text"]:focus-visible, select:focus-visible { outline: 2px solid var(
 .range-seg.is-current .range-label { color: var(--ink); font-weight: 600; }
 
 /* 식단 */
-.macro-meter { width: 120px; height: 10px; vertical-align: middle; }
+.macro-meter { width: 100%; min-width: 56px; max-width: 120px; height: 10px; vertical-align: middle; }
+/* 기본 meter 초록색 대신 토큰 색 (WebView는 WebKit/Blink) */
+.macro-meter::-webkit-meter-bar { background: var(--line-2); border: 0; border-radius: 2px; height: 10px; }
+.macro-meter::-webkit-meter-optimum-value,
+.macro-meter::-webkit-meter-suboptimum-value { background: var(--accent); border-radius: 2px; }
+.macro-meter::-moz-meter-bar { background: var(--accent); }
 .meals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .meal { border: 1px solid var(--line); border-radius: 4px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
 .meal h4 { display: flex; justify-content: space-between; gap: 8px; }
@@ -449,6 +454,7 @@ input[type="text"]:focus-visible, select:focus-visible { outline: 2px solid var(
 }
 
 @media (max-width: 400px) {
+    .macro-meter { display: none; } /* 좁은 화면은 비율 숫자만 (정보는 같음) */
     /* 그래프 표: 시점 열 고정, 날짜는 시점 아래로 */
     #chart-table .col-date { display: none; }
     #chart-table .row-date { display: block; font-size: 11px; font-weight: 400; color: var(--ink-3); }
