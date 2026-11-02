@@ -57,7 +57,7 @@ src/main/java/io/keede/mombti
 ├       └── ErrorCode
 ├   └── web/
 ├       └── controller/
-├           └── ReportController                 GET /, POST /report, POST /report/refine, GET /report
+├           └── ReportController                 GET /, GET /report, GET /report/refine
 ├       └── dto/report/
 ├           └── ReportForm                       @Valid. 필수 @NotNull, 선택 null 허용 + 범위
 ├           └── ReportFormMapper                 ReportForm → BodyProfile
@@ -79,6 +79,8 @@ src/main/resources
 ├   └── css/app.css
 ├   └── js/form.js                               인라인 안내, BMI 미리보기 (표시 전용)
 ├   └── js/report-chart.js                       Chart.js 렌더, 범례·기간·현실 보정 토글
+├   └── vendor/chart.umd.min.js                  Chart.js 4.4.1 로컬 사본 (MIT)
+├   └── fonts/                                   IBM Plex Mono 400/600 라틴 woff2 (OFL)
 ├── messages.properties                          화면 문구, 오류 메시지 (E-코드와 매핑)
 └── application.yml
 ```
@@ -112,7 +114,9 @@ src/test/java/io/keede/mombti
 ```
 GET  /                → index.html (빈 ReportForm)
 
-POST /report          → NumberNormalizer → @Valid ReportForm
+GET  /report?gender=..&age=..&heightCm=..&weightKg=..[&선택 3개]
+                      → 쿼리가 없으면 302 / (E-27)
+                      → NumberNormalizer → @Valid ReportForm
                         ├ 오류 → index.html 재렌더 (400, 값 유지, 오류 요약)
                         └ ReportFormMapper → BodyProfile
                           → ReportQueryService.generate(profile)
@@ -128,12 +132,12 @@ POST /report          → NumberNormalizer → @Valid ReportForm
                              9. AdviceNarrator               → 문장
                           → Report → ReportView + ChartDataView(JSON, th:inline) → report.html
 
-POST /report/refine   → hidden 기존 필수·선택 값 + 패널 입력 병합 → /report와 같은 처리
+GET  /report/refine?.. → hidden 기존 필수·선택 값 + 패널 입력 병합 → /report와 같은 처리
                         ├ 오류 → 기존 값으로 report.html 재렌더 + 패널 안 오류 (400)
                         └ report.html (#refine 앵커로 이동)
-
-GET  /report          → 302 /
 ```
+- 폼은 모두 GET이다. 모바일 WebView에서 뒤로 가기·새로 고침이 재전송 없이 동작한다 (ADR-017).
+- 리포트 응답: `Cache-Control: no-store`. 모든 응답: `Referrer-Policy: no-referrer`.
 
 ## 시뮬레이션 모델 (Hall 단순화)
 - 상태: 지방량 F, 제지방량 L. 초기값은 F = 체중 × 체지방률, L = 체중 − F.
@@ -163,8 +167,16 @@ GET  /report          → 302 /
 | `SimulationInvariantException`, 그 외 예외 | 계산 | error/5xx.html + requestId. 로그는 requestId와 예외 타입만 | 500 |
 
 - `server.error.include-stacktrace=never`, `server.error.include-message=never`, `server.error.whitelabel.enabled=false`
-- 요청 크기 제한, CSP 헤더(script는 self + cdnjs.cloudflare.com, style은 self + fonts)
+- 요청 크기 제한, CSP 헤더(default/script/style/font 모두 `'self'`, 외부 출처 없음)
 - CSRF: 인증과 상태 변경이 없으므로 MVP에서는 적용하지 않는다 (ADR-017과 함께 재검토).
+
+## 모바일 앱 WebView 설정 (앱 쪽, ADR-027)
+웹에서 할 수 없어서 앱 셸에서 맞춰야 하는 것들이다.
+- Android: WebView 강제 다크(algorithmic darkening)를 끈다. 페이지가 `color-scheme`으로 라이트/다크를 직접 처리한다.
+- iOS: WKWebView `contentInsetAdjustmentBehavior = .never`. safe area는 CSS `env(safe-area-inset-*)`가 처리한다.
+- Android 뒤로 가기 버튼은 `webView.canGoBack()`이면 `goBack()`에 연결한다. 리포트가 GET이라 그대로 동작한다.
+- 상태바 색은 `theme-color`(라이트 #f4f6f5 / 다크 #101513)에 맞춘다.
+- 서버 접근 로그를 켜지 않는다 (리포트 URL에 입력값이 있음).
 
 ## 상태 관리
 - 서버는 무상태다. DB, 세션, 쿠키를 쓰지 않는다.

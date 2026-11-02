@@ -83,6 +83,7 @@ background: var(--paper); border: 1px solid var(--line); border-radius: 6px; pad
 
 ### 버튼
 ```
+모든 버튼·토글 최소 높이 44px (모바일 WebView, ADR-027)
 Primary: background var(--ink); color var(--paper); border-radius 4px; padding 11px 20px; font-weight 600
 Ghost:   background transparent; border 1px solid var(--line); color var(--ink)
 토글(범례, 기간): pill 형태, aria-pressed로 상태 표시, 꺼짐은 opacity .45
@@ -90,7 +91,8 @@ Ghost:   background transparent; border 1px solid var(--line); color var(--ink)
 
 ### 입력 필드
 ```
-border 1px solid var(--line); border-radius 4px; padding 9px 10px
+border 1px solid var(--line); border-radius 4px; padding 9px 10px; 최소 높이 44px
+글자 16px 이상 (iOS는 16px 미만 입력창에 포커스하면 화면을 확대한다)
 단위 접미사(cm, kg, %, 세)를 필드 안 오른쪽에 표시
 숫자 필드는 inputmode="decimal" (나이는 numeric)
 포커스: border-color var(--accent) / 오류: border-color var(--crit) + 아래 12px 오류 문구
@@ -100,21 +102,23 @@ border 1px solid var(--line); border-radius 4px; padding 9px 10px
 ### 각주
 ```
 본문 숫자 뒤 위첨자 [n] 11px 모노 var(--accent) → 근거 목록 #refN 앵커
+글자는 작게 두고 터치 영역은 24×24px 이상 (WCAG 2.5.8, 줄 간격은 음수 margin으로 유지)
 ```
 
 ## 레이아웃
 - 전체 너비: 최대 960px, 단일 컬럼
 - 정렬: 좌측 정렬 기본. 중앙 정렬 금지 (빈 상태 문구 포함)
 - 간격: 섹션 간 18~20px, 섹션 안 12px. 형제 요소는 flex/grid gap으로 배치
-- 좌우 여백: 최소 16px (`max(16px, env(safe-area-inset-*))`)
+- 여백: 좌우 최소 16px, 위아래도 safe area 반영 (`max(16px, env(safe-area-inset-*))`, `viewport-fit=cover`)
 - 반응형 기준: 360 / 768 / 1024px. 760px 이하에서 카드 2×2, 입력 2열, 표는 가로 스크롤 컨테이너 안에서만
+- 좁은 화면 표: 760px 이하 도달 예측 표는 시나리오별 카드, 400px 이하 그래프 표는 시점 열 고정 + 날짜를 시점 아래로
 - 리포트 섹션 순서는 docs/PRD.md "리포트 구성"을 따른다
 
 ## 타이포그래피
 | 용도 | 스타일 |
 |------|--------|
-| 본문 글꼴 | IBM Plex Sans KR (대체: Apple SD Gothic Neo, Malgun Gothic, sans-serif) |
-| 숫자 글꼴 | IBM Plex Mono, `font-variant-numeric: tabular-nums` |
+| 본문 글꼴 | 시스템 글꼴: -apple-system, Apple SD Gothic Neo, Noto Sans KR, Roboto, Malgun Gothic (다운로드 없음) |
+| 숫자 글꼴 | IBM Plex Mono 400/600 로컬 woff2(라틴만), `font-variant-numeric: tabular-nums` |
 | 페이지 제목 | 22px 700 |
 | 섹션 제목 | 19px 700 |
 | 카드·소제목 | 15px 600 |

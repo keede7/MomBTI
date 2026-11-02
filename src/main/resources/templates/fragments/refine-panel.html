@@ -5,7 +5,7 @@
     <h2 id="refine-title">더 정확하게 보기</h2>
     <th:block th:if="${report.refineActivityLevel or report.refineTargetWeightKg or report.refineBodyFatPercent}">
         <p class="caption">비어 있던 항목만 넣으면 리포트 전체를 새 결과로 바꿔 드려요.</p>
-        <form th:action="@{/report/refine} + '#refine'" th:object="${refineForm}" method="post" novalidate>
+        <form th:action="@{/report/refine} + '#refine'" th:object="${refineForm}" method="get" novalidate>
             <div th:if="${#fields.hasErrors('*')}" class="error-summary" role="alert">
                 <p class="error-summary-title">입력을 확인해 주세요</p>
                 <ul>

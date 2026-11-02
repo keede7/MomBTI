@@ -1,6 +1,6 @@
 /*
  * 변화 그래프 (점진적 향상, ADR-014). 서버가 준 data-chart JSON(ChartDataView)만 그린다. 여기서는 아무것도 계산하지 않는다.
- * Chart.js(cdnjs)가 없거나 JS가 꺼져 있으면 아래 표가 같은 정보를 보여 준다.
+ * Chart.js(로컬 vendor)를 못 불러오거나 JS가 꺼져 있으면 아래 표가 같은 정보를 보여 준다.
  * 기간 규칙은 서버의 ChartWindowPolicy 결과(window, sixMonthToggle, goalWeek)를 그대로 따른다 (ADR-021).
  */
 (function () {
@@ -87,7 +87,7 @@
             var ctx = c.ctx;
             var area = c.chartArea;
             ctx.save();
-            ctx.font = '600 12px "IBM Plex Sans KR", sans-serif';
+            ctx.font = '600 12px ' + getComputedStyle(document.body).fontFamily;
             ctx.fillStyle = token('--ink');
             if (goalMarkerVisible()) {
                 var x = c.scales.x.getPixelForValue(data.goalWeek);

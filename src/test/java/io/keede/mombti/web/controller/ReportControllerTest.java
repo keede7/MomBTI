@@ -33,12 +33,12 @@ class ReportControllerTest {
 
     /** 남 30세 175cm 80kg (BMI 26.1, 감량 모드). */
     private static MockHttpServletRequestBuilder report(Map<String, String> overrides) {
-        return form(post("/report"), Map.of(
+        return form(get("/report"), Map.of(
                 "gender", "MALE", "age", "30", "heightCm", "175", "weightKg", "80"), overrides);
     }
 
     private static MockHttpServletRequestBuilder refine(Map<String, String> overrides) {
-        return form(post("/report/refine"), Map.of(
+        return form(get("/report/refine"), Map.of(
                 "gender", "MALE", "age", "30", "heightCm", "175.0", "weightKg", "80.0"), overrides);
     }
 
@@ -302,14 +302,26 @@ class ReportControllerTest {
     }
 
     @Test
-    void 응답에_CSP_헤더와_requestId() throws Exception {
+    void 리포트는_POST를_받지_않음_뒤로_가기_가능한_GET만() throws Exception {
+        mockMvc.perform(post("/report").param("gender", "MALE"))
+                .andExpect(status().isMethodNotAllowed());
+    }
+
+    @Test
+    void 입력값이_URL에_있으므로_리포트는_캐시하지_않고_Referrer를_보내지_않음() throws Exception {
+        mockMvc.perform(report(Map.of()))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", containsString("no-store")))
+                .andExpect(header().string("Referrer-Policy", "no-referrer"));
+        mockMvc.perform(refine(Map.of("refineActivityLevel", "ACTIVE")))
+                .andExpect(header().string("Cache-Control", containsString("no-store")));
+    }
+
+    @Test
+    void 응답에_CSP_헤더와_requestId_외부_출처_없음() throws Exception {
         mockMvc.perform(get("/"))
-                .andExpect(header().string("Content-Security-Policy", containsString(
-                        "script-src 'self' https://cdnjs.cloudflare.com")))
-                .andExpect(header().string("Content-Security-Policy", containsString(
-                        "style-src 'self' https://fonts.googleapis.com")))
-                .andExpect(header().string("Content-Security-Policy", containsString(
-                        "font-src 'self' https://fonts.gstatic.com")))
+                .andExpect(header().string("Content-Security-Policy", containsString("script-src 'self'")))
+                .andExpect(header().string("Content-Security-Policy", not(containsString("https://"))))
                 .andExpect(header().exists("X-Request-Id"));
     }
 }

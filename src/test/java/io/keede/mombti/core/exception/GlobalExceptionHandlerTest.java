@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,7 +34,7 @@ class GlobalExceptionHandlerTest {
     private ReportQueryService reportQueryService;
 
     private MvcResult postReport() throws Exception {
-        return mockMvc.perform(post("/report")
+        return mockMvc.perform(get("/report")
                         .param("gender", "FEMALE")
                         .param("age", "37")
                         .param("heightCm", "163.4")
@@ -76,7 +76,7 @@ class GlobalExceptionHandlerTest {
     void E29_5xx_페이지는_스택트레이스를_노출하지_않음() throws Exception {
         given(reportQueryService.generate(any())).willThrow(new IllegalStateException("boom"));
 
-        mockMvc.perform(post("/report")
+        mockMvc.perform(get("/report")
                         .param("gender", "MALE").param("age", "30").param("heightCm", "175").param("weightKg", "80"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string(org.hamcrest.Matchers.not(containsString("boom"))))
